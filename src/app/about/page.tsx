@@ -23,7 +23,7 @@ export default function About() {
           About <span className="text-grad">LinkLuxe</span>
         </h1>
         <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted">
-          LinkLuxe is a small, focused URL shortener. It turns long web addresses into short, tidy links you can share anywhere, and tells you how they perform, while keeping what it knows about your visitors to a minimum.
+          LinkLuxe is a small URL shortener. It turns long web addresses into short links and shows how each one performs, while storing as little as possible about visitors.
         </p>
       </Reveal>
 

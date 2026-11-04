@@ -27,7 +27,7 @@ function niceMax(n: number): number {
   return n;
 }
 
-/** Hand-drawn SVG bar chart (no chart library). */
+// Plain SVG bar chart, no chart library.
 export function BarChart({ data }: { data: { date: string; clicks: number }[] }) {
   const gid = useId().replace(/:/g, "");
   const [hover, setHover] = useState<number | null>(null);

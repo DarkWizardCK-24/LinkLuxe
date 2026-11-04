@@ -23,11 +23,7 @@ function hasScheme(value: string): boolean {
   return !/^[a-z0-9.-]+:\d+(?:[/?#]|$)/i.test(value);
 }
 
-/**
- * Validates and normalises a destination URL. Only http/https is accepted, a missing scheme becomes
- * https://, and links that point back at this app (`ownHosts`, e.g. "linkluxe.app" or "localhost:3000")
- * are rejected because they would create redirect loops.
- */
+// Only http/https. A missing scheme becomes https://. Links to `ownHosts` are rejected (redirect loops).
 export function normalizeUrl(input: string, ownHosts: readonly string[] = []): Result<string> {
   const raw = (input ?? "").trim();
   if (!raw) return fail("Enter a URL to shorten.");

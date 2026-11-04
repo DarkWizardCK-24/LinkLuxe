@@ -1,9 +1,6 @@
 @import "tailwindcss";
 
-/*
-  LinkLuxe palette: champagne -> gold -> rose gold -> copper on warm charcoal.
-  There is deliberately no blue, green or purple anywhere in this file.
-*/
+/* Palette: champagne, gold, rose gold, copper on warm charcoal. */
 :root {
   --bg: #0f0b09;
   --bg-raised: #17110d;

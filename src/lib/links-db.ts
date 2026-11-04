@@ -52,10 +52,8 @@ export async function fetchLink(db: Firestore, code: string): Promise<LinkRecord
   return snap.exists() ? toLinkRecord(snap.data()) : null;
 }
 
-/**
- * Records one click using the only update the security rules allow: clicks + 1 together with at most
- * one new/updated key in each of daily, referrers and devices. Callers should treat failures as non-fatal.
- */
+// Matches the only update the rules allow: clicks + 1 plus at most one key each in daily, referrers, devices.
+// Failures are non-fatal for callers.
 export async function recordClick(db: Firestore, link: LinkRecord, click: ClickInfo): Promise<void> {
   const args: unknown[] = [
     "clicks", increment(1),
@@ -106,10 +104,8 @@ export interface CreateInput {
   expiry: ExpiryOption;
 }
 
-/**
- * Creates a link owned by `uid`. Validation here mirrors (and is enforced again by) the Firestore rules.
- * The document id is the lower-cased code, so create-if-absent gives atomic uniqueness.
- */
+// Validation mirrors the Firestore rules. The doc id is the lower-cased code, so create-if-absent
+// keeps aliases unique.
 export async function createLink(db: Firestore, uid: string, input: CreateInput, ownHosts: string[]): Promise<CreatedLink> {
   const url = normalizeUrl(input.url, ownHosts);
   if (!url.ok) throw new CreateError(url.error, "url");

@@ -4,13 +4,13 @@
 
 # LinkLuxe
 
-**Elegant short links with custom aliases, QR codes, expiry and private click analytics, synced to your account.**
+**URL shortener with custom aliases, QR codes, expiry and click analytics.**
 
 Next.js · React · TypeScript · Tailwind CSS 4 · Firebase Auth · Firestore · Framer Motion
 
 </div>
 
-LinkLuxe turns long web addresses into short, tidy links you can share anywhere, then shows you how they perform. Sign in with an email and password or with Google and your links, QR codes and analytics follow you to every device, while the service never stores visitor IP addresses.
+LinkLuxe shortens web addresses and shows click stats for each link. Sign in with email or Google and your links sync across devices. Visitor IP addresses are never stored.
 
 ## Screenshots
 
@@ -50,8 +50,8 @@ LinkLuxe turns long web addresses into short, tidy links you can share anywhere,
 **Shortening**
 - **Live shortener on the home page.** Paste a link, get a short one instantly, with copy, open and QR buttons.
 - **Custom aliases.** Choose a memorable name, or get a random 7-character code. Aliases are case-insensitive and reserved words are blocked.
-- **Optional expiry.** Never, 1 day, 7 days or 30 days. Expired links show a friendly page instead of redirecting.
-- **Smart validation** on both the client and the server: only http and https, a 2048 character limit, automatic https:// and loop protection for links that point back at the app.
+- **Optional expiry.** Never, 1 day, 7 days or 30 days. Expired links show a status page instead of redirecting.
+- **Validation** on both the client and the server: only http and https, a 2048 character limit, automatic https:// and loop protection for links that point back at the app.
 
 **Accounts and management**
 - **Email and Google sign-in** with an animated sign-in and register screen, password reset by email and an account menu.
@@ -73,8 +73,8 @@ LinkLuxe turns long web addresses into short, tidy links you can share anywhere,
 
 **Design**
 - Mobile-first: sticky top bar, bottom tab bar, bottom-sheet panels and safe-area padding on phones, a top navigation layout on desktop.
-- A champagne gold, rose gold and copper gradient identity on warm charcoal, with glass cards, smooth motion that respects reduced-motion settings, and an original monogram logo, hero illustration and social preview image.
-- Accessible by default: labelled fields, visible focus, keyboard-friendly dialogs and screen-reader chart summaries.
+- Champagne gold, rose gold and copper gradients on warm charcoal, glass cards, motion that respects reduced-motion settings, and a monogram logo, hero illustration and social preview image.
+- Accessibility: labelled fields, visible focus, keyboard-friendly dialogs and screen-reader chart summaries.
 - Installable as an app (PWA manifest and icons).
 
 ---

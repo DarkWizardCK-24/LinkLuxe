@@ -1,4 +1,3 @@
-/** Display helpers. Pure and deterministic (callers pass `now` when relative time is needed). */
 
 export function hostOf(url: string): string {
   try {

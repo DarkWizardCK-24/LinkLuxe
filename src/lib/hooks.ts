@@ -11,7 +11,6 @@ export function useHydrated(): boolean {
   );
 }
 
-/** The page origin on the client; empty string while server-rendering. */
 export function useOrigin(): string {
   return useSyncExternalStore(
     () => () => {},

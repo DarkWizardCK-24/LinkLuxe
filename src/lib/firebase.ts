@@ -26,10 +26,7 @@ export function getFirebaseApp(): FirebaseApp {
   return getApps().length ? getApp() : initializeApp(config);
 }
 
-/**
- * Firestore, cached per process. The database id defaults to "(default)" and can be switched with
- * NEXT_PUBLIC_FIRESTORE_DATABASE_ID once the app moves to its own named database.
- */
+// Database id defaults to "(default)"; set NEXT_PUBLIC_FIRESTORE_DATABASE_ID to use a named one.
 export function getDb(): Firestore {
   if (!g.__llDb) {
     const databaseId = process.env.NEXT_PUBLIC_FIRESTORE_DATABASE_ID || "(default)";
@@ -40,7 +37,6 @@ export function getDb(): Firestore {
   return g.__llDb;
 }
 
-/** Browser-only. */
 export function getAuthClient(): Auth {
   if (!g.__llAuth) {
     const auth = getAuth(getFirebaseApp());

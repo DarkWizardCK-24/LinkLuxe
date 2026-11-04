@@ -2,7 +2,6 @@
 
 import { motion, type HTMLMotionProps } from "framer-motion";
 
-/** Fades and lifts its children in, optionally when scrolled into view. */
 export function Reveal({
   children,
   delay = 0,
