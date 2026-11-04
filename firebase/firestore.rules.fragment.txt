@@ -1,0 +1,102 @@
+// ---------------------------------------------------------------------------------------------
+// LinkLuxe fragment. Paste inside `match /databases/{database}/documents { ... }`.
+// Self-contained: everything lives under /apps/linkluxe/ and every helper is prefixed ll_.
+//
+// Model
+//   apps/linkluxe/links/{codeLower}  public get, owner-only list, owner delete, counter-only updates
+//   apps/linkluxe/users/{uid}        per-account creation throttle (3 s gap, 100 links / UTC day)
+// ---------------------------------------------------------------------------------------------
+
+    function ll_signedIn() {
+      return request.auth != null;
+    }
+
+    function ll_reserved() {
+      return ['api', 'about', 'shorten', 'links', 'link', 'stats', 'status', '_next', 'favicon', 'favicon.ico',
+              'robots', 'robots.txt', 'sitemap', 'sitemap.xml', 'manifest', 'manifest.webmanifest', 'icon',
+              'icons', 'logo', 'og', 'admin', 'login', 'logout', 'signup', 'register', 'dashboard', 'settings',
+              'static', 'public', 'assets', 'new', 'create', 'help', 'terms', 'privacy', 'contact', 'www', 'app',
+              'null', 'undefined', 'expired', 'not-found', '404', '500'];
+    }
+
+    function ll_userPath(uid) {
+      return /databases/$(database)/documents/apps/linkluxe/users/$(uid);
+    }
+
+    function ll_dayNow() {
+      return int(request.time.toMillis() / 86400000);
+    }
+
+    function ll_devicesSum(d) {
+      return d.mobile + d.desktop + d.bot + d.other;
+    }
+
+    // Link creation: owner = caller, exact keys, zeroed counters, valid url / alias / expiry, and the
+    // caller's throttle document written in the same batch with lastCreatedAt == request.time.
+    function ll_newLinkOk(id) {
+      let d = request.resource.data;
+      return ll_signedIn()
+        && d.keys().hasOnly(['url', 'code', 'ownerUid', 'createdAt', 'expiresAt', 'clicks', 'lastClickedAt', 'daily', 'referrers', 'devices'])
+        && d.keys().hasAll(['url', 'code', 'ownerUid', 'createdAt', 'expiresAt', 'clicks', 'lastClickedAt', 'daily', 'referrers', 'devices'])
+        && id.matches('^[a-z0-9_-]{3,32}$')
+        && !(id in ll_reserved())
+        && d.code is string
+        && d.code.matches('^[A-Za-z0-9_-]{3,32}$')
+        && d.code.lower() == id
+        && d.url is string
+        && d.url.size() <= 2048
+        && d.url.matches('^https?://[^\\s]+$')
+        && d.ownerUid == request.auth.uid
+        && d.createdAt == request.time
+        && (d.expiresAt == null
+            || (d.expiresAt is timestamp && d.expiresAt > request.time && d.expiresAt <= request.time + duration.value(365, 'd')))
+        && d.clicks == 0
+        && d.lastClickedAt == null
+        && d.daily == {}
+        && d.referrers == {}
+        && d.devices == {'mobile': 0, 'desktop': 0, 'bot': 0, 'other': 0}
+        && getAfter(ll_userPath(request.auth.uid)).data.lastCreatedAt == request.time;
+    }
+
+    // The only update anyone (signed in or not) may make: record one click on a live link.
+    function ll_clickOk() {
+      let n = request.resource.data;
+      let o = resource.data;
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clicks', 'lastClickedAt', 'daily', 'referrers', 'devices'])
+        && n.clicks == o.clicks + 1
+        && n.lastClickedAt == request.time
+        && (o.expiresAt == null || request.time < o.expiresAt)
+        && n.devices.keys().toSet().hasOnly(['mobile', 'desktop', 'bot', 'other'])
+        && ll_devicesSum(n.devices) == ll_devicesSum(o.devices) + 1
+        && n.daily.diff(o.daily).affectedKeys().size() <= 1
+        && n.referrers.diff(o.referrers).affectedKeys().size() <= 1
+        && n.referrers.size() <= 60;
+    }
+
+    match /apps/linkluxe/links/{codeLower} {
+      allow get: if true;
+      allow list: if ll_signedIn() && resource.data.ownerUid == request.auth.uid;
+      allow create: if ll_newLinkOk(codeLower);
+      allow update: if ll_clickOk();
+      allow delete: if ll_signedIn() && resource.data.ownerUid == request.auth.uid;
+    }
+
+    match /apps/linkluxe/users/{uid} {
+      allow get: if ll_signedIn() && request.auth.uid == uid;
+
+      allow create: if ll_signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['lastCreatedAt', 'day', 'count'])
+        && request.resource.data.lastCreatedAt == request.time
+        && request.resource.data.day == ll_dayNow()
+        && request.resource.data.count == 1;
+
+      allow update: if ll_signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['lastCreatedAt', 'day', 'count'])
+        && request.resource.data.lastCreatedAt == request.time
+        && request.resource.data.day == ll_dayNow()
+        && request.time >= resource.data.lastCreatedAt + duration.value(3, 's')
+        && ((resource.data.day == ll_dayNow()
+              && request.resource.data.count == resource.data.count + 1
+              && request.resource.data.count <= 100)
+            || (resource.data.day != ll_dayNow() && request.resource.data.count == 1));
+    }
